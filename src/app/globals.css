@@ -1,0 +1,323 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apple-inspired base styles */
+@layer base {
+  html {
+    @apply antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply bg-white text-base leading-relaxed;
+    font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', system-ui, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+/* Apple-style component abstractions */
+@layer components {
+  /* Layout and container styles */
+  .apple-section-padding {
+    @apply py-24 md:py-32 px-6 md:px-8;
+  }
+  
+  .apple-container {
+    @apply max-w-[980px] mx-auto;
+  }
+  
+  /* Typography styles */
+  .apple-headline {
+    @apply text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-apple-black dark:text-white;
+  }
+  
+  .apple-subheadline {
+    @apply text-xl md:text-2xl font-normal text-[#86868B] dark:text-gray-300;
+  }
+
+  .apple-title {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight text-apple-black dark:text-white;
+  }
+
+  .apple-subtitle {
+    @apply text-lg md:text-xl font-medium text-apple-gray dark:text-gray-300;
+  }
+  
+  .apple-body {
+    @apply text-base leading-relaxed text-[#333336] dark:text-gray-200;
+  }
+
+  .apple-caption {
+    @apply text-sm text-apple-gray dark:text-gray-400;
+  }
+  
+  /* Button styles */
+  .apple-button {
+    @apply inline-flex h-12 items-center justify-center rounded-full 
+           bg-apple-blue px-6 py-3 text-sm font-medium text-white 
+           transition-all hover:bg-apple-blue-dark focus:outline-none focus:ring-2
+           focus:ring-apple-blue focus:ring-offset-2 shadow-apple-button;
+  }
+  
+  .apple-button-secondary {
+    @apply inline-flex h-12 items-center justify-center rounded-full
+           bg-white dark:bg-gray-800 px-6 py-3 text-sm font-medium text-apple-blue dark:text-apple-blue-light
+           transition-all border border-[#007AFF]/10 dark:border-gray-700
+           hover:border-[#007AFF]/30 focus:outline-none focus:ring-2
+           focus:ring-apple-blue focus:ring-offset-2 shadow-apple-button;
+  }
+
+  .apple-button-small {
+    @apply h-9 px-4 py-2 text-xs rounded-full;
+  }
+
+  .apple-button-large {
+    @apply h-14 px-8 py-4 text-base rounded-full;
+  }
+
+  /* Card styles */
+  .apple-card {
+    @apply bg-white dark:bg-gray-800 shadow-apple-card
+           rounded-2xl border border-gray-100 dark:border-gray-700
+           overflow-hidden transition-all duration-300;
+  }
+
+  .apple-card-hover {
+    @apply hover:shadow-lg hover:-translate-y-1 transition-all duration-300;
+  }
+
+  .apple-card-header {
+    @apply p-6 border-b border-gray-100 dark:border-gray-700;
+  }
+
+  .apple-card-body {
+    @apply p-6;
+  }
+
+  .apple-card-footer {
+    @apply p-6 border-t border-gray-100 dark:border-gray-700;
+  }
+
+  /* Input styles */
+  .apple-input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600
+           bg-white dark:bg-gray-800 text-[#1D1D1F] dark:text-white
+           focus:ring-2 focus:ring-apple-blue focus:border-apple-blue transition-all
+           placeholder:text-gray-400 dark:placeholder:text-gray-500;
+  }
+
+  .apple-select {
+    @apply apple-input appearance-none pr-10 bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-size: 1.5em 1.5em;
+  }
+
+  .apple-checkbox {
+    @apply h-5 w-5 rounded border-gray-300 dark:border-gray-600
+           text-apple-blue focus:ring-apple-blue;
+  }
+
+  .apple-radio {
+    @apply h-5 w-5 border-gray-300 dark:border-gray-600
+           text-apple-blue focus:ring-apple-blue;
+  }
+
+  /* Feature card styles */
+  .apple-feature-card {
+    @apply flex flex-col bg-white dark:bg-gray-800 rounded-2xl overflow-hidden
+           border border-gray-100 dark:border-gray-700 shadow-apple-card
+           hover:shadow-lg transition-all duration-300;
+  }
+
+  .apple-feature-icon {
+    @apply w-12 h-12 flex items-center justify-center rounded-full
+           bg-apple-blue/10 dark:bg-apple-blue/20 text-apple-blue;
+  }
+
+  .apple-feature-title {
+    @apply text-xl font-semibold text-apple-black dark:text-white mb-2;
+  }
+
+  .apple-feature-description {
+    @apply text-apple-gray dark:text-gray-300;
+  }
+  
+  /* Glassmorphism variations */
+  .apple-glass {
+    @apply backdrop-blur-md bg-white/70 dark:bg-gray-800/70
+           border border-white/20 dark:border-gray-700/20;
+  }
+  
+  .apple-glass-dark {
+    @apply backdrop-blur-lg bg-black/60 text-white
+           border border-white/10;
+  }
+}
+
+/* Spotlight and gradient background effects */
+.bg-spotlight {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+}
+
+.text-gradient {
+  @apply text-transparent bg-clip-text;
+  background-image: linear-gradient(90deg, #0071e3 0%, #42a1ec 100%);
+} 
+
+/* Premium background elements and animations */
+@layer utilities {
+  .animate-blob {
+    animation: blob-bounce 7s infinite;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  
+  .animation-delay-6000 {
+    animation-delay: 6s;
+  }
+  
+  .frost-panel {
+    @apply backdrop-blur-xl bg-white/70 dark:bg-gray-900/60 border border-white/20 dark:border-gray-800/30;
+  }
+  
+  .dashboard-glassmorphism {
+    @apply backdrop-blur-md bg-white/60 dark:bg-gray-900/60 
+           border border-gray-200/50 dark:border-gray-800/50 
+           shadow-lg;
+  }
+  
+  .dashboard-card {
+    @apply bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 
+           shadow-sm hover:shadow-md transition-all duration-300 
+           rounded-xl overflow-hidden;
+  }
+  
+  .dashboard-card-hover {
+    @apply transform hover:-translate-y-1 transition-all duration-300;
+  }
+  
+  .dashboard-grid-bg {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  }
+  
+  .dashboard-dot-pattern {
+    background-size: 20px 20px;
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  }
+}
+
+@keyframes blob-bounce {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(10px, -10px) scale(1.05);
+  }
+  50% {
+    transform: translate(0, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(-10px, -15px) scale(1.02);
+  }
+}
+
+.glow {
+  position: relative;
+}
+
+.glow::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: conic-gradient(
+    from 0deg, 
+    transparent 0%, 
+    rgba(56, 189, 248, 0.3) 25%, 
+    rgba(251, 113, 133, 0.3) 50%, 
+    rgba(251, 191, 36, 0.3) 75%, 
+    transparent 100%
+  );
+  filter: blur(30px);
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.glow:hover::after {
+  opacity: 0.8;
+} 
+
+/* Apple-style Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+/* Animation delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Apple-style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+} 

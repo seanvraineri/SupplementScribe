@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e5f0f5" />
+      <stop offset="100%" stop-color="#eef6fb" />
+    </linearGradient>
+    
+    <linearGradient id="dnaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B8E2F8" />
+      <stop offset="50%" stop-color="#DCEFF6" />
+      <stop offset="100%" stop-color="#B8E2F8" />
+    </linearGradient>
+    
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="glow"/>
+      <feComposite in="SourceGraphic" in2="glow" operator="over"/>
+    </filter>
+    
+    <filter id="softShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="0" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="800" fill="url(#bgGradient)"/>
+  
+  <!-- Circuit board lines - right side -->
+  <g stroke="#D5E3ED" stroke-width="1" opacity="0.4">
+    <path d="M 550,300 L 700,300" fill="none" />
+    <path d="M 560,350 L 680,350" fill="none" />
+    <path d="M 570,400 L 690,400" fill="none" />
+    <path d="M 600,300 L 600,450" fill="none" />
+    <path d="M 650,350 L 650,500" fill="none" />
+    
+    <circle cx="600" cy="300" r="3" fill="#D5E3ED" />
+    <circle cx="650" cy="350" r="3" fill="#D5E3ED" />
+    <circle cx="600" cy="400" r="3" fill="#D5E3ED" />
+  </g>
+  
+  <!-- Circuit board lines - left side -->
+  <g stroke="#D5E3ED" stroke-width="1" opacity="0.4">
+    <path d="M 100,450 L 250,450" fill="none" />
+    <path d="M 120,500 L 240,500" fill="none" />
+    <path d="M 150,450 L 150,600" fill="none" />
+    <path d="M 200,500 L 200,650" fill="none" />
+    
+    <circle cx="150" cy="450" r="3" fill="#D5E3ED" />
+    <circle cx="200" cy="500" r="3" fill="#D5E3ED" />
+  </g>
+  
+  <!-- Floating pills -->
+  <g filter="url(#softShadow)">
+    <ellipse cx="150" cy="200" rx="35" ry="15" fill="#D5E3ED" opacity="0.7"/>
+    <ellipse cx="650" cy="600" rx="35" ry="15" fill="#D5E3ED" opacity="0.7"/>
+    <ellipse cx="700" cy="160" rx="35" ry="15" fill="#D5E3ED" opacity="0.7"/>
+  </g>
+  
+  <!-- DNA Helix - Main structure -->
+  <g transform="translate(400, 400) scale(0.9)" filter="url(#softGlow)">
+    <!-- Left Helix Strand -->
+    <path d="M 0,-250 
+             C -80,-210 -100,-170 -50,-130 
+             C 0,-90 50,-50 0,-10 
+             C -80,30 -100,70 -50,110 
+             C 0,150 50,190 0,230 
+             C -50,270 -30,310 0,350" 
+          stroke="url(#dnaGradient)" fill="none" stroke-width="30" stroke-linecap="round" filter="url(#softShadow)"/>
+    
+    <!-- Right Helix Strand -->
+    <path d="M 0,-250 
+             C 80,-210 100,-170 50,-130 
+             C 0,-90 -50,-50 0,-10 
+             C 80,30 100,70 50,110 
+             C 0,150 -50,190 0,230 
+             C 50,270 30,310 0,350" 
+          stroke="url(#dnaGradient)" fill="none" stroke-width="30" stroke-linecap="round" filter="url(#softShadow)"/>
+    
+    <!-- DNA Rungs -->
+    <line x1="-45" y1="-220" x2="45" y2="-220" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="-150" x2="45" y2="-150" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="-80" x2="45" y2="-80" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="-10" x2="45" y2="-10" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="60" x2="45" y2="60" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="130" x2="45" y2="130" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="200" x2="45" y2="200" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+    <line x1="-45" y1="270" x2="45" y2="270" stroke="#DCEFF6" stroke-width="15" opacity="0.9" />
+  </g>
+</svg> 

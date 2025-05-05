@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SupplementScribe CORS Fix</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(to bottom right, #f0f9ff, #e0f2fe);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      width: 100%;
+    }
+    h1 {
+      color: #4338ca;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #4f46e5;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 8px;
+    }
+    p {
+      margin: 10px 0;
+      color: #374151;
+    }
+    button {
+      background: #4338ca;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #4f46e5;
+    }
+    pre {
+      background: #f3f4f6;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+      margin: 15px 0;
+    }
+    .success {
+      color: #059669;
+      font-weight: 500;
+    }
+    .error {
+      color: #dc2626;
+      font-weight: 500;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4338ca;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      margin-top: 10px;
+    }
+    .code {
+      font-family: monospace;
+      background: #f3f4f6;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SupplementScribe CORS & Auth Diagnostics</h1>
+    <p>This tool will help diagnose and fix CORS and authentication issues with Supabase.</p>
+
+    <h2>1. Check Cookie Access</h2>
+    <p>This tests if cookies can be set and read from your browser.</p>
+    <button id="checkCookies">Test Browser Cookies</button>
+    <div id="cookieResult" class="result"></div>
+
+    <h2>2. Check Supabase Auth Settings</h2>
+    <div id="supabaseConfig">
+      <p>Checking your Supabase configuration...</p>
+    </div>
+
+    <h2>3. Test Supabase Connection</h2>
+    <p>This tests if your browser can connect to Supabase without CORS errors.</p>
+    <button id="testConnection">Test Supabase Connection</button>
+    <div id="connectionResult" class="result"></div>
+
+    <h2>4. Auth Status</h2>
+    <p>This checks if you currently have a valid authentication session.</p>
+    <button id="checkAuth">Check Auth Status</button>
+    <div id="authResult" class="result"></div>
+
+    <h2>5. Navigation</h2>
+    <button id="goLogin">Go to Login</button>
+    <button id="goDashboard">Go to Dashboard</button>
+    <button id="goApi">Try API Redirect</button>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://hgtjcfjcogkwsmynipxf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhndGpjZmpjb2drd3NteW5pcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYxMDMyOTcsImV4cCI6MjA2MTY3OTI5N30.dfEyUfakLTzbl_aw2U05nXXizQCZxQABcsmNyTLsL4M';
+    
+    // 1. Test browser cookies
+    document.getElementById('checkCookies').addEventListener('click', function() {
+      const result = document.getElementById('cookieResult');
+      result.innerHTML = '<div class="loading"></div> Testing cookies...';
+      
+      // Try to set a test cookie
+      document.cookie = 'test_cookie=working; path=/';
+      
+      // Check if cookie was set
+      setTimeout(() => {
+        const cookies = document.cookie;
+        if (cookies.includes('test_cookie=working')) {
+          result.innerHTML = '<span class="success">✓ Cookies are working correctly!</span>';
+        } else {
+          result.innerHTML = '<span class="error">✗ Cookies cannot be set. This might be due to browser privacy settings.</span>';
+        }
+      }, 500);
+    });
+    
+    // 2. Show Supabase configuration
+    const showConfig = () => {
+      const config = document.getElementById('supabaseConfig');
+      const settings = `
+      <p>Your Supabase project URL: <span class="code">${supabaseUrl}</span></p>
+      <p>For proper authentication, ensure these settings in your Supabase dashboard:</p>
+      <pre>
+// Authentication > URL Configuration:
+Site URL: http://localhost:3003  (or your domain in production)
+
+// Authentication > URL Configuration > Redirect URLs:
+http://localhost:3003/**
+https://YOUR-DOMAIN.COM/**  (for production)
+
+// API Settings > CORS Origins (API Settings tab):
+http://localhost:3003
+https://YOUR-DOMAIN.COM  (for production)
+      </pre>
+      <button id="clearCookies" style="background-color: #DC2626;">Clear Auth Cookies</button>
+      `;
+      config.innerHTML = settings;
+      
+      // Add clear cookies functionality
+      setTimeout(() => {
+        document.getElementById('clearCookies')?.addEventListener('click', function() {
+          // Clear all Supabase auth-related cookies
+          document.cookie.split(';').forEach(cookie => {
+            const [name] = cookie.trim().split('=');
+            if (name.includes('sb-')) {
+              document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+              console.log(`Cleared cookie: ${name}`);
+            }
+          });
+          
+          // Clear localStorage
+          localStorage.removeItem('supabase.auth.token');
+          localStorage.removeItem('supabase.auth.refreshToken');
+          
+          alert('Auth cookies and local storage cleared. You can now restart the test.');
+          
+          // Refresh the page
+          window.location.reload();
+        });
+      }, 100);
+    };
+    showConfig();
+    
+    // 3. Test Supabase connection
+    document.getElementById('testConnection').addEventListener('click', function() {
+      const result = document.getElementById('connectionResult');
+      result.innerHTML = '<div class="loading"></div> Testing connection...';
+      
+      // Make a simple request to Supabase
+      fetch(`${supabaseUrl}/rest/v1/?apikey=${supabaseKey}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          result.innerHTML = '<span class="success">✓ Connection to Supabase successful!</span>';
+        } else {
+          result.innerHTML = `<span class="error">✗ Connection failed with status: ${response.status}</span>`;
+        }
+        return response.json();
+      })
+      .catch(error => {
+        result.innerHTML = `<span class="error">✗ CORS Error: ${error.message}</span><p>This indicates a CORS configuration issue with Supabase.</p>`;
+      });
+    });
+    
+    // 4. Check auth status
+    document.getElementById('checkAuth').addEventListener('click', function() {
+      const result = document.getElementById('authResult');
+      result.innerHTML = '<div class="loading"></div> Checking authentication...';
+      
+      // Check for auth cookies
+      const cookies = document.cookie.split(';');
+      let authCookie = null;
+      
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith('sb-') && cookie.includes('auth')) {
+          authCookie = cookie;
+          break;
+        }
+      }
+      
+      if (authCookie) {
+        result.innerHTML = '<span class="success">✓ Found authentication cookie: ' + authCookie.split('=')[0] + '</span>';
+      } else {
+        result.innerHTML = '<span class="error">✗ No authentication cookie found. You may need to log in again.</span>';
+      }
+    });
+    
+    // 5. Navigation buttons
+    document.getElementById('goLogin').addEventListener('click', () => window.location.href = '/login');
+    document.getElementById('goDashboard').addEventListener('click', () => window.location.href = '/dashboard');
+    document.getElementById('goApi').addEventListener('click', () => window.location.href = '/api/auth/redirect');
+  </script>
+</body>
+</html> 
