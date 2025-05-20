@@ -129,14 +129,23 @@ async function calculateBiomarkerScore(userId: string, result: HealthScoreResult
     throw error;
   }
   
+  // Define biomarker type
+  interface Biomarker {
+    biomarker_name: string;
+    biomarker_value: number;
+    measurement_date: string;
+    normal_range_low: number | null;
+    normal_range_high: number | null;
+  }
+  
   // Group by biomarker name and take the most recent measurement
-  const latestBiomarkers = biomarkers.reduce((acc, curr) => {
+  const latestBiomarkers = (biomarkers as Biomarker[]).reduce((acc: Record<string, Biomarker>, curr: Biomarker) => {
     if (!acc[curr.biomarker_name] || 
         new Date(curr.measurement_date) > new Date(acc[curr.biomarker_name].measurement_date)) {
       acc[curr.biomarker_name] = curr;
     }
     return acc;
-  }, {} as Record<string, any>);
+  }, {});
   
   // Convert to array
   const biomarkerArray = Object.values(latestBiomarkers);
@@ -145,7 +154,7 @@ async function calculateBiomarkerScore(userId: string, result: HealthScoreResult
   let normalCount = 0;
   
   // Process each biomarker
-  result.biomarkerDetails.markers = biomarkerArray.map(biomarker => {
+  result.biomarkerDetails.markers = biomarkerArray.map((biomarker: Biomarker) => {
     const isNormal = (
       (biomarker.normal_range_low === null || biomarker.biomarker_value >= biomarker.normal_range_low) &&
       (biomarker.normal_range_high === null || biomarker.biomarker_value <= biomarker.normal_range_high)
@@ -191,6 +200,13 @@ async function calculateBiomarkerScore(userId: string, result: HealthScoreResult
  * @param result The health score result object to update
  */
 async function calculateGeneticScore(userId: string, result: HealthScoreResult): Promise<void> {
+  // Define genetic data type
+  interface GeneticVariant {
+    gene: string;
+    genotype: string;
+    user_id: string;
+  }
+
   // Fetch genetic data from the database
   const { data: geneticData, error } = await supabase
     .from('genetic_data')
@@ -224,7 +240,7 @@ async function calculateGeneticScore(userId: string, result: HealthScoreResult):
   let protectiveVariants = 0;
   
   // Process each genetic variant
-  result.geneticDetails.variants = geneticData.map(gene => {
+  result.geneticDetails.variants = (geneticData as GeneticVariant[]).map(gene => {
     // Get the impact value for this variant, default to 0 if not found
     const impact = variantImpacts[gene.gene]?.[gene.genotype] || 0;
     

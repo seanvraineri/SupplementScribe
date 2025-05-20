@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { createClient } from '@/lib/supabase-browser';
+import { supabase, createSupabaseClient } from '@/lib/supabase';
 
 /**
  * AuthContextType - Defines the shape of our auth context
@@ -38,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   
-  // Use the singleton Supabase client - won't be null in browser
-  const supabase = createClient();
+  // Use the singleton Supabase client instance
+  const supabaseClient = supabase || createSupabaseClient();
 
   // Initialize auth state - this runs ONCE on mount
   useEffect(() => {
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
 
         // Gracefully handle null supabase client
-        if (!supabase) {
+        if (!supabaseClient) {
           console.error('Supabase client not available');
           if (mounted) {
             setInitError(new Error('Supabase client not available'));
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Get the initial session - with error handling
         try {
-          const { data, error } = await supabase.auth.getSession();
+          const { data, error } = await supabaseClient.auth.getSession();
           
           if (error) {
             console.error('Failed to get session:', error.message);
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Set up auth listener with error handling
         try {
-          const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, newSession: Session | null) => {
+          const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((event: string, newSession: Session | null) => {
             console.log(`AuthContext: Auth state changed: ${event}`, newSession?.user?.email || 'No user');
             
             if (mounted) {
@@ -174,14 +174,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign in with Google
   const signInWithGoogle = async () => {
-    if (!supabase) {
+    if (!supabaseClient) {
       console.error('Supabase client not initialized');
       return { error: new Error('Supabase client not initialized') };
     }
     
     try {
       console.log('AuthContext: Starting Google sign-in');
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: { 
           redirectTo: `${window.location.origin}/dashboard`
@@ -202,14 +202,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign in with email and password
   const signInWithEmail = async (email: string, password: string) => {
-    if (!supabase) {
+    if (!supabaseClient) {
       console.error('Supabase client not initialized');
       return { error: new Error('Supabase client not initialized') };
     }
     
     try {
       console.log('AuthContext: Starting email sign-in');
-      const { error } = await supabase.auth.signInWithPassword({ 
+      const { error } = await supabaseClient.auth.signInWithPassword({ 
         email, 
         password 
       });
@@ -220,7 +220,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Manually check for session after sign in
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
       
       if (sessionError) {
         console.error('Error getting session after login:', sessionError);
@@ -243,14 +243,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign up with email and password
   const signUp = async (email: string, password: string) => {
-    if (!supabase) {
+    if (!supabaseClient) {
       console.error('Supabase client not initialized');
       return { data: null, error: new Error('Supabase client not initialized') };
     }
     
     try {
       console.log('AuthContext: Starting sign-up');
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}` }
@@ -270,14 +270,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign out
   const signOut = async () => {
-    if (!supabase) {
+    if (!supabaseClient) {
       console.error('Supabase client not initialized');
       return;
     }
     
     try {
       console.log('AuthContext: Starting sign-out');
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabaseClient.auth.signOut();
       
       if (error) {
         console.error('Sign-out error:', error);
@@ -293,7 +293,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   // Clear auth state (for debugging/fixing issues)
   const clearAuthState = async () => {
-    if (!supabase) {
+    if (!supabaseClient) {
       console.error('Supabase client not initialized');
       return;
     }
@@ -302,7 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('AuthContext: Clearing auth state');
       
       // Sign out first
-      await supabase.auth.signOut({ scope: 'local' });
+      await supabaseClient.auth.signOut({ scope: 'local' });
       
       // Clear cookies manually
       document.cookie.split(';').forEach(cookie => {

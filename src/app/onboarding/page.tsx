@@ -246,12 +246,28 @@ export default function OnboardingPage() {
         if (geneticError) throw geneticError;
       }
       
+      // Set onboarding completion in localStorage to ensure it persists
+      localStorage.setItem('onboardingCompleted', 'true');
+      
       // Clear stored form data
       localStorage.removeItem('onboardingFormData');
       localStorage.removeItem('pendingOnboardingData');
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Double-check that the onboarding_completed flag is set to true in the database
+      const { error: updateError } = await supabase
+        .from('health_profiles')
+        .update({ onboarding_completed: true })
+        .eq('user_id', user.id);
+      
+      if (updateError) {
+        console.error('Error ensuring onboarding completion status:', updateError);
+        // Don't throw here, as the main profile data was saved successfully
+      }
+      
+      // Redirect to dashboard with a small delay to ensure data is saved
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 300);
       
     } catch (error) {
       console.error('Error saving profile:', error);

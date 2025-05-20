@@ -1,3 +1,5 @@
+'use client';
+
 import AppleLandingPage from './AppleLandingPage';
 
 export default function MarketingPage() {

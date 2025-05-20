@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SymptomChecker from '@/components/ai/SymptomChecker';
+import { generateChatResponse } from '@/lib/openai-service';
 
 type Message = {
   id: number;
@@ -95,7 +96,7 @@ export default function ChatPage() {
     { 
       id: 1, 
       type: 'assistant', 
-      content: "Hi there! I'm Nutri, your personal health companion. 👋\n\nI'm here to help you optimize your supplement regimen, answer nutrition questions, and decode your health data. What can I help you with today?" 
+      content: "Hello, I'm your elite-level biohacker supplement specialist. I have PhD-level expertise in analyzing genetic data, lab biomarkers, and PubMed research to create personalized supplement protocols.\n\nI'll help you optimize your supplement regimen based on your unique genetic variants, biomarkers, and health goals. How can I assist you today?" 
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -106,17 +107,47 @@ export default function ChatPage() {
   
   // Suggested questions with icons
   const suggestedQuestions = [
-    { icon: "✨", text: "Why is my Vitamin D level low?" },
-    { icon: "😴", text: "What supplements help with better sleep?" },
-    { icon: "🔄", text: "How do my supplements interact?" },
-    { icon: "❤️", text: "Can you explain my cholesterol numbers?" },
-    { icon: "🥬", text: "What foods are high in magnesium?" }
+    { icon: "🧬", text: "What supplements are best for my MTHFR C677T mutation?" },
+    { icon: "⚡", text: "How can I optimize my energy levels?" },
+    { icon: "🧠", text: "What's best for cognitive enhancement?" },
+    { icon: "💤", text: "How can I improve my sleep quality?" },
+    { icon: "🔍", text: "Can you analyze my Vitamin D levels?" }
   ];
 
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Enhanced user profile for biohacking context
+  const mockUserProfile = {
+    age: 35,
+    gender: "Female",
+    wellness_considerations: ["Energy optimization", "Cognitive performance", "Sleep quality", "Stress resilience"],
+    current_supplements: [
+      { name: "Vitamin D3", dosage: "5000 IU" },
+      { name: "Magnesium Glycinate", dosage: "400mg" },
+      { name: "Omega-3", dosage: "2000mg EPA/DHA" },
+      { name: "CoQ10", dosage: "100mg" },
+      { name: "NAC", dosage: "600mg" }
+    ],
+    genetic_variants: [
+      { gene: "MTHFR", variant: "C677T", status: "heterozygous" },
+      { gene: "COMT", variant: "Val158Met", status: "homozygous" },
+      { gene: "VDR", variant: "Taq1", status: "heterozygous" }
+    ],
+    lab_results: {
+      vitamin_d: 28,
+      b12: 450,
+      ferritin: 65,
+      homocysteine: 9.2,
+      hscrp: 0.8,
+      hdl: 62,
+      ldl: 110,
+      testosterone: 55,
+      tsh: 2.1
+    }
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,18 +165,44 @@ export default function ChatPage() {
     setInputValue('');
     setIsLoading(true);
     
-    // In a real app, this would be an API call to your backend
-    // Simulating API delay
-    setTimeout(() => {
+    try {
+      // Format messages for OpenAI API
+      const formattedMessages = messages.map(msg => ({
+        role: msg.type === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      }));
+      
+      // Add the new user message
+      formattedMessages.push({
+        role: 'user',
+        content: inputValue
+      });
+      
+      // Get response from OpenAI
+      const response = await generateChatResponse(formattedMessages, mockUserProfile);
+      
+      // Add AI response
       const aiResponse: Message = {
         id: messages.length + 2,
         type: 'assistant',
-        content: generateMockResponse(inputValue)
+        content: response
       };
       
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      
+      // Add error message if API fails
+      const errorResponse: Message = {
+        id: messages.length + 2,
+        type: 'assistant',
+        content: "I'm sorry, I encountered an error processing your request. Please try again in a moment."
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
   
   const handleSuggestedQuestion = (question: string) => {
@@ -229,33 +286,6 @@ export default function ChatPage() {
     setSelectedSupplement(supplement);
   };
   
-  // Mock response generator
-  const generateMockResponse = (question: string): string => {
-    question = question.toLowerCase();
-    
-    if (question.includes('vitamin d') || question.includes('vitamin d3')) {
-      return "Looking at your latest blood work, your Vitamin D is at 28 ng/mL, which is just below the optimal range (30-50 ng/mL).\n\nThis is quite common, especially during seasons with less sun exposure. Your current protocol with 2000 IU of Vitamin D3 daily is perfect for gradually raising your levels. Let's check your next blood test to see how you're progressing! ☀️";
-    }
-    
-    if (question.includes('sleep')) {
-      return "Based on your health profile, I see a few great options to support better sleep:\n\n• Continue with your Magnesium Glycinate (400mg) in the evening - it's excellent for relaxation\n• Consider a small dose of Melatonin (0.5-1mg) if you have trouble falling asleep\n• Your B vitamin levels look good, which helps with sleep regulation\n\nAlso, try limiting screen time before bed and maintaining a consistent sleep schedule! 😴";
-    }
-    
-    if (question.includes('interact')) {
-      return "Good news! I've analyzed your supplement protocol, and there are no concerning interactions between your current supplements.\n\nSome smart timing tips:\n• Take Zinc and Magnesium Glycinate at different times than iron supplements if you take them\n• Vitamin D3 and Omega-3 actually work well together and can be taken at the same time\n• Your immune support supplements (Vitamin D3, Zinc) have complementary effects";
-    }
-    
-    if (question.includes('cholesterol')) {
-      return "Let's break down your lipid panel:\n\n• Total Cholesterol: 210 mg/dL (slightly elevated)\n• LDL: 130 mg/dL (above target of <100 mg/dL)\n• HDL: 55 mg/dL (good level - this is your beneficial cholesterol!)\n• Triglycerides: 125 mg/dL (within normal range)\n\nYour Omega-3 supplements are helping, but you might benefit from increasing soluble fiber (oats, beans, fruits) and plant sterols. Would you like specific food recommendations?";
-    }
-    
-    if (question.includes('magnesium')) {
-      return "Magnesium superstars in your diet could include:\n\n• Dark leafy greens: spinach, kale\n• Nuts and seeds: pumpkin seeds, almonds (a handful has ~80mg!)\n• Legumes: black beans, edamame\n• Whole grains: brown rice, quinoa\n• Dark chocolate: 70%+ cocoa (a delicious option)\n• Avocados and bananas\n\nYour tests show you're at the low end of normal for magnesium. Adding more of these foods regularly would complement your Magnesium Glycinate supplement perfectly! 🥑";
-    }
-    
-    return "That's a great question! Based on your latest health data, I think you're on the right track.\n\nYour Vitamin D3 levels are steadily improving, and your Omega-3 intake is showing positive effects on your markers.\n\nIs there a specific aspect of your supplements or health you'd like me to explore in more detail? I'm here to help you fine-tune your approach! 💪";
-  };
-
   // Handle symptom checker results
   const handleSymptomAnalysisComplete = (results: any) => {
     // Format the symptom analysis results as a message

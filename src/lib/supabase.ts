@@ -1,10 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createBrowserClient } from './supabase-browser';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Creates a consistent supabase client across the application
+// This helps prevent multiple GoTrueClient instances which can cause authentication errors
+export const supabase = createBrowserClient();
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn('Supabase URL or key not found in environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey); 
+// Export the create function in case it's needed elsewhere
+export { createClient as createSupabaseClient } from './supabase-browser'; 

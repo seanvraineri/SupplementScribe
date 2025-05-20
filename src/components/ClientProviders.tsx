@@ -3,6 +3,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/app/providers';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // Error fallback component
@@ -59,9 +60,11 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
       onReset={() => window.location.reload()}
     >
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

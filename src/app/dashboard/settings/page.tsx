@@ -14,7 +14,11 @@ export default function SettingsPage() {
     allowAnalytics: true
   });
   
+  // Hydration fix - Only render UI after mounted to avoid hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  
   useEffect(() => {
+    setMounted(true);
     // Load settings from localStorage
     const loadSettings = () => {
       try {
@@ -38,6 +42,8 @@ export default function SettingsPage() {
   
   // Save settings when they change
   useEffect(() => {
+    if (!mounted) return;
+    
     const saveSettings = () => {
       localStorage.setItem('userSettings', JSON.stringify({
         notifications,
@@ -47,7 +53,7 @@ export default function SettingsPage() {
     };
     
     saveSettings();
-  }, [notifications, reportFormat, privacySettings]);
+  }, [notifications, reportFormat, privacySettings, mounted]);
   
   const handleToggleNotifications = () => {
     setNotifications(prev => !prev);
@@ -71,6 +77,11 @@ export default function SettingsPage() {
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
   };
+  
+  // Don't render UI until after client-side hydration to avoid hydration mismatch
+  if (!mounted) {
+    return null;
+  }
   
   return (
     <motion.div 
